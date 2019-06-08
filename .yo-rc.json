@@ -1,0 +1,9 @@
+{
+  "generator-node": {
+    "promptValues": {
+      "authorName": "federico cocco",
+      "authorEmail": "federicocdev@gmail.com",
+      "authorUrl": ""
+    }
+  }
+}

@@ -1,0 +1,8 @@
+node_modules
+coverage
+.idea/
+*.iml
+
+.metals
+.dotty-ide-disabled
+package-lock.json
