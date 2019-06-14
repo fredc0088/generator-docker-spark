@@ -89,7 +89,7 @@ RUN echo "$LOG_TAG Install R related packages" && \
     R -e "install.packages('ggplot2', repos='http://cran.us.r-project.org')" && \
     R -e "install.packages('googleVis', repos='http://cran.us.r-project.org')" && \
     R -e "install.packages('data.table', repos='http://cran.us.r-project.org')" && \
-    echo "$LOG_TAG for devtools, Rcpp"
+    echo "$LOG_TAG for devtools, Rcpp" && \
     apt-get -y install libcurl4-gnutls-dev libssl-dev && \
     R -e "install.packages('devtools', repos='http://cran.us.r-project.org')" && \
     R -e "install.packages('Rcpp', repos='http://cran.us.r-project.org')" && \
