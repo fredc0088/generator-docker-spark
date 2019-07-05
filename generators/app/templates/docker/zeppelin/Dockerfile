@@ -77,7 +77,8 @@ RUN echo "$LOG_TAG Install python related packages" && \
     python -V && \
     echo "$LOG_TAG Imstall additional packages (conda)" && \
     conda install -q numpy=1.12.1 pandas=0.21.1 matplotlib=2.1.1 pandasql=0.7.3 ipython=5.4.1 jupyter_client=5.1.0 ipykernel=4.7.0 bokeh=0.12.10 ggplot==0.11.5 && \
-    pip install -q grpcio==1.8.2 bkzep==0.4.0
+    pip install -q grpcio==1.8.2 bkzep==0.4.0 && \
+    pip install keras nltk tensorflow gensim regex --force
 
 RUN echo "$LOG_TAG Install R related packages" && \
     echo "deb http://cran.rstudio.com/bin/linux/ubuntu xenial/" | tee -a /etc/apt/sources.list && \
