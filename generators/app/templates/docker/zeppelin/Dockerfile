@@ -70,15 +70,17 @@ RUN echo "$LOG_TAG Install python related packages" && \
     echo "$LOG_TAG For tkinter" && \
     apt-get install -y python3-tk libxml2-dev libxslt-dev zlib1g-dev && \
     conda config --set always_yes yes --set changeps1 no && \
+    echo "$LOG_TAG Upgrade conda and pip" && \
     conda update -q conda && \
     conda info -a && \
     conda config --add channels conda-forge && \
     conda update setuptools && \
+    pip install --upgrade setuptools --user python && \
+    pip install --upgrade --force-reinstall pip==9.0.3 && \
     python -V && \
-    echo "$LOG_TAG Imstall additional packages (conda)" && \
-    conda install -q numpy=1.12.1 pandas=0.21.1 matplotlib=2.1.1 pandasql=0.7.3 ipython=5.4.1 jupyter_client=5.1.0 ipykernel=4.7.0 bokeh=0.12.10 ggplot==0.11.5 && \
-    pip install -q grpcio==1.8.2 bkzep==0.4.0 && \
-    pip install keras nltk tensorflow gensim regex --force
+    echo "$LOG_TAG Install additional pip packages" && \
+    pip install -q numpy==1.14.5 pandas==0.21.1 matplotlib==2.1.1 pandasql==0.7.3 ipython==5.4.1 jupyter_client==5.1.0 ipykernel==4.7.0 bokeh==0.12.10 ggplot==0.11.5 grpcio==1.8.6 bkzep==0.4.0 keras==2.2.4 nltk==3.4.4 tensorflow==1.14.0 gensim==3.8.0 regex==2019.06.08 && \
+    pip install --upgrade pip
 
 RUN echo "$LOG_TAG Install R related packages" && \
     echo "deb http://cran.rstudio.com/bin/linux/ubuntu xenial/" | tee -a /etc/apt/sources.list && \
@@ -97,7 +99,7 @@ RUN echo "$LOG_TAG Install R related packages" && \
     Rscript -e "library('devtools'); library('Rcpp'); install_github('ramnathv/rCharts')"
 
 RUN echo "$LOG_TAG Download Zeppelin binary" && \
-    wget -O /tmp/zeppelin-${Z_VERSION}-bin-all.tgz http://archive.apache.org/dist/zeppelin/zeppelin-${Z_VERSION}/zeppelin-${Z_VERSION}-bin-all.tgz && \
+    wget -qO /tmp/zeppelin-${Z_VERSION}-bin-all.tgz http://archive.apache.org/dist/zeppelin/zeppelin-${Z_VERSION}/zeppelin-${Z_VERSION}-bin-all.tgz && \
     tar -zxvf /tmp/zeppelin-${Z_VERSION}-bin-all.tgz && \
     rm -rf /tmp/zeppelin-${Z_VERSION}-bin-all.tgz && \
     mv /zeppelin-${Z_VERSION}-bin-all ${Z_HOME}

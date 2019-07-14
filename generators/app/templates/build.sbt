@@ -1,29 +1,22 @@
 import scala.language.postfixOps
 import sys.process._
 
-scalacOptions := Seq(
-  "-unchecked",
-  "-deprecation",
-  "-encoding",
-  "utf8"
-)
-
 lazy val dockerComposeUp = taskKey[Unit]("Build and bring up docker instances")
 lazy val dockerComposeStart = taskKey[Unit]("Restart existing stopped instances")
 lazy val dockerComposeStop = taskKey[Unit]("Stop instances")
 lazy val dockerComposeDown = taskKey[Unit]("Destroy and remove everything")
 lazy val dockerComposeUpZeppelin = taskKey[Unit]("Startup with zeppelin")
 
-lazy val shell: Seq[String] = if (sys.props("os.name").contains("Windows")) Seq("cmd", "/c") else Seq("bash", "-c")
+lazy val checkOs: Boolean = sys.props("os.name").contains("Windows")
+lazy val shell: Seq[String] = if(checkOs) Seq("cmd", "/c") else Seq("bash", "-c")
 
 dockerComposeUp := {
   val s: TaskStreams = streams.value
   s.log.info("building images...")
-  val pre: Seq[String] = shell :+ "chmod +x build-images.sh"
-  val buildImgs: Seq[String] = shell :+ "./build-images.sh"
+  val pre: Seq[String] = shell :+ (if(!checkOs) "chmod +x build-images.sh" else "echo y| cacls build-images.sh /g everyone:f")
+  val buildImgs: Seq[String] = shell :+ (if(checkOs) "sh build-images.sh" else "./build-images.sh")
   s.log.info("bringing up instances...")
   val dockerComposeUp: Seq[String] = shell :+ "docker-compose up -d"
-//  val dockerComposeUp: Seq[String] = shell :+ "docker-compose up -d --no-recreate"
   if((pre #&& buildImgs #&& dockerComposeUp !) == 0) {
     s.log.success("docker starts successfully!")
   } else {
@@ -34,8 +27,8 @@ dockerComposeUp := {
 dockerComposeUpZeppelin := {
   val s: TaskStreams = streams.value
   s.log.info("building images...")
-  val pre: Seq[String] = shell :+ "chmod +x build-images.sh"
-  val buildImgs: Seq[String] = shell :+ "./build-images.sh"
+  val pre: Seq[String] = shell :+ (if(!checkOs) "chmod +x build-images.sh" else "echo y| cacls build-images.sh /g everyone:f")
+  val buildImgs: Seq[String] = shell :+ (if(checkOs) "sh build-images.sh" else "./build-images.sh")
   s.log.info("bringing up instances...")
   val dockerComposeUp: Seq[String] = shell :+ "docker-compose -f docker-compose.yml -f docker-compose-notebook.override.yml up -d"
   if((pre #&& buildImgs #&& dockerComposeUp !) == 0) {
@@ -84,22 +77,13 @@ addCommandAlias("dstop", ";dockerComposeStop")
 addCommandAlias("ddown", ";dockerComposeDown")
 addCommandAlias("zepup", ";dockerComposeDown;dockerComposeUpZeppelin")
 
-
-val dependencies = {
-  val slf4sVersion = "1.7.12"
-
-  Seq(
-    "org.slf4s"              %% "slf4s-api"         % slf4sVersion
-  )
-}
-
-lazy val <%= nameInCamelCase %> = (project in file("."))
+lazy val root = (project in file("."))
   .settings(
-    name := `<%= name %>`,
+    name := "Spark_Docker",
     version := "0.1",
     scalaVersion := "2.12.8",
-    organization := `<%= org %>`,
-    libraryDependencies ++= dependencies
+    organization := "org.Fcocco01"
   )
+
 
 fork := true
