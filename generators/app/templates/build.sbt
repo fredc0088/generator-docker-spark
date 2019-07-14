@@ -77,12 +77,21 @@ addCommandAlias("dstop", ";dockerComposeStop")
 addCommandAlias("ddown", ";dockerComposeDown")
 addCommandAlias("zepup", ";dockerComposeDown;dockerComposeUpZeppelin")
 
-lazy val root = (project in file("."))
+val dependencies = {
+  val slf4sVersion = "1.7.12"
+
+  Seq(
+    "org.slf4s"              %% "slf4s-api"         % slf4sVersion
+  )
+}
+
+lazy val <%= nameInCamelCase %> = (project in file("."))
   .settings(
-    name := "Spark_Docker",
+    name := `<%= name %>`,
     version := "0.1",
     scalaVersion := "2.12.8",
-    organization := "org.Fcocco01"
+    organization := `<%= org %>`,
+    libraryDependencies ++= dependencies
   )
 
 
