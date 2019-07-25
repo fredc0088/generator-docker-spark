@@ -6,6 +6,9 @@ lazy val dockerComposeStart = taskKey[Unit]("Restart existing stopped instances"
 lazy val dockerComposeStop = taskKey[Unit]("Stop instances")
 lazy val dockerComposeDown = taskKey[Unit]("Destroy and remove everything")
 lazy val dockerComposeUpZeppelin = taskKey[Unit]("Startup with zeppelin")
+lazy val dockerComposeUpJupyter = taskKey[Unit]("Startup with jupiter")
+lazy val dockerComposeDownZeppelin = taskKey[Unit]("Down with zeppelin")
+lazy val dockerComposeUpJupyter = taskKey[Unit]("Down with jupiter")
 
 lazy val checkOs: Boolean = sys.props("os.name").contains("Windows")
 lazy val shell: Seq[String] = if(checkOs) Seq("cmd", "/c") else Seq("bash", "-c")
@@ -28,10 +31,28 @@ dockerComposeUpZeppelin := {
   val s: TaskStreams = streams.value
   s.log.info("building images...")
   val pre: Seq[String] = shell :+ (if(!checkOs) "chmod +x build-images.sh" else "echo y| cacls build-images.sh /g everyone:f")
+  val preNb: Seq[String] = shell :+ (if(!checkOs) "chmod +x build-image-zeppelin.sh" else "echo y| cacls build-image-zeppelin.sh /g everyone:f")
   val buildImgs: Seq[String] = shell :+ (if(checkOs) "sh build-images.sh" else "./build-images.sh")
+  val buildImgsNb: Seq[String] = shell :+ (if(checkOs) "sh build-image-zeppelin.sh" else "./build-image-zeppelin.sh")
   s.log.info("bringing up instances...")
   val dockerComposeUp: Seq[String] = shell :+ "docker-compose -f docker-compose.yml -f docker-compose-notebook.override.yml up -d"
-  if((pre #&& buildImgs #&& dockerComposeUp !) == 0) {
+  if((pre #&& preNb #&& buildImgs #&& buildImgsNb #&& dockerComposeUp !) == 0) {
+    s.log.success("docker starts successfully!")
+  } else {
+    throw new IllegalStateException("docker compose failed!")
+  }
+}
+
+dockerComposeUpJupyter := {
+  val s: TaskStreams = streams.value
+  s.log.info("building images...")
+  val pre: Seq[String] = shell :+ (if(!checkOs) "chmod +x build-images.sh" else "echo y| cacls build-images.sh /g everyone:f")
+  val preNb: Seq[String] = shell :+ (if(!checkOs) "chmod +x build-image-jupyter.sh" else "echo y| cacls build-image-jupyter.sh /g everyone:f")
+  val buildImgs: Seq[String] = shell :+ (if(checkOs) "sh build-images.sh" else "./build-images.sh")
+  val buildImgsNb: Seq[String] = shell :+ (if(checkOs) "sh build-image-jupyter.sh" else "./build-image-jupyter.sh")
+  s.log.info("bringing up instances...")
+  val dockerComposeUp: Seq[String] = shell :+ "docker-compose -f docker-compose.yml -f docker-compose-notebook.jupyter.override.yml up -d"
+  if((pre #&& preNb #&& buildImgs #&& buildImgsNb #&& dockerComposeUp !) == 0) {
     s.log.success("docker starts successfully!")
   } else {
     throw new IllegalStateException("docker compose failed!")
@@ -71,11 +92,34 @@ dockerComposeDown := {
   }
 }
 
+dockerComposeDownZeppelin := {
+  val s: TaskStreams = streams.value
+  s.log.info("docker compose bringing down instances...")
+  val x: Seq[String] = shell :+ "docker-compose -f docker-compose-notebook.zeppelin.override.yml down"
+  if((x !) == 0) {
+    s.log.success("successful!")
+  } else {
+    throw new IllegalStateException("failed!")
+  }
+}
+
+dockerComposeDownJupyter := {
+  val s: TaskStreams = streams.value
+  s.log.info("docker compose bringing down instances...")
+  val x: Seq[String] = shell :+ "docker-compose -f docker-compose-notebook.jupyter.override.yml down"
+  if((x !) == 0) {
+    s.log.success("successful!")
+  } else {
+    throw new IllegalStateException("failed!")
+  }
+}
+
 addCommandAlias("dup", ";dockerComposeDown;dockerComposeUp")
 addCommandAlias("dstart", ";dockerComposeStart")
 addCommandAlias("dstop", ";dockerComposeStop")
 addCommandAlias("ddown", ";dockerComposeDown")
-addCommandAlias("zepup", ";dockerComposeDown;dockerComposeUpZeppelin")
+addCommandAlias("zepup", ";dockerComposeDown;dockerComposeDownZeppelin;dockerComposeUpZeppelin")
+addCommandAlias("jupup", ";dockerComposeDown;dockerComposeDownJupyter;dockerComposeUpJupyter")
 
 val dependencies = {
   val slf4sVersion = "1.7.12"

@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  zeppelin:
+    image: jupyterlab:1.0
+    container_name: jupyterlab
+    hostname: jupyterlab
+    ports:
+      - "8200:80"
+    volumes:
+      - ./mnt/juptyter-data/notebook:/home/jovyan/work
+    environment:
+      - "JUPYTER_ENABLE_LAB=yes"

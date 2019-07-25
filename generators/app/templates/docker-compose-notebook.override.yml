@@ -7,8 +7,8 @@ services:
     ports:
       - "8100:8080"
     volumes:
-      - /tmp/zeppelin-data/notebook:/notebook
-      - /tmp/spark-data:/opt/spark-data
+      - ./mnt/zeppelin-data/notebook:/notebook
+      - ./mnt/spark-data:/opt/spark-data
     environment:
       - "ZEPPELIN_LOG_DIR=/logs"
       - "ZEPPELIN_NOTEBOOK_DIR=/notebook"

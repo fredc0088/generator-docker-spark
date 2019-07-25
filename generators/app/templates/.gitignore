@@ -28,3 +28,9 @@ target/
 
 .metals
 .bloop
+
+# Docker persistent volumes
+/sparks-apps
+/sparks-data
+/zeppelin-data/notebook/*
+/jupyter-data
